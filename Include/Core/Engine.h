@@ -9,7 +9,7 @@ namespace Vanguard {
 class SceneGraph;
 class RenderGraph;
 class VulkanContext;
-class EditorLayer;
+namespace Editor { class EditorLayer; }
 
 class Engine {
 public:
@@ -37,7 +37,7 @@ private:
     std::unique_ptr<VulkanContext> m_VulkanContext;
     std::unique_ptr<PhysicsSystem> m_PhysicsSystem;
     std::unique_ptr<SceneGraph> m_SceneGraph;
-    std::unique_ptr<EditorLayer> m_EditorLayer;
+    std::unique_ptr<Editor::EditorLayer> m_EditorLayer;
 
     float m_DeltaTime = 0.01667f;
     double m_TotalTime = 0.0;

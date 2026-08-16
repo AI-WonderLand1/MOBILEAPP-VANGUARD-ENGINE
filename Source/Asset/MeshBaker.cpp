@@ -18,12 +18,6 @@ struct VMeshHeader {
     glm::vec3 BoundingBoxMax{0.0f};
 };
 
-struct VertexPBR {
-    glm::vec3 Position;
-    glm::vec3 Normal;
-    glm::vec4 Tangent;
-    glm::vec2 TexCoord;
-};
 #pragma pack(pop)
 
 bool MeshBaker::BakeToBinaryVMesh(

@@ -72,7 +72,7 @@ void FilamentViewport::AllocateRenderTargets(uint32_t width, uint32_t height) {
 
     // 4. Assign RenderTarget and Viewport bounds to View
     m_View->setRenderTarget(m_RenderTarget);
-    m_View->setViewport({0, 0, width, height});
+    m_View->setViewport({0, 0, static_cast<int>(width), static_cast<int>(height)});
 
     m_Width = width;
     m_Height = height;

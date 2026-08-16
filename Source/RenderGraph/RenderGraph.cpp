@@ -7,10 +7,6 @@
 
 namespace Vanguard {
 
-RenderGraphBuilder::RenderGraphBuilder(RenderGraph& graph)
-    : m_Graph(graph) {
-}
-
 RGTextureHandle RenderGraphBuilder::CreateTexture(const std::string& name, const RGTextureDesc& desc) {
     return m_Graph.CreateTransientTexture(name, desc);
 }

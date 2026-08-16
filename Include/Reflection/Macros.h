@@ -51,28 +51,28 @@ const Vanguard::Reflection::ClassMetadata& ClassType::StaticClass() { \
         meta.Size = sizeof(ClassType); \
         meta.FactoryConstructor = []() -> void* { return new ClassType(); };
 
-#define REFLECT_PROPERTY(ClassType, MemberVar, DisplayName, Category, Tooltip) \
+#define REFLECT_PROPERTY(ClassName, MemberName, PropDisplayName, PropCategory, PropTooltip) \
         { \
             Vanguard::Reflection::PropertyMetadata prop; \
-            prop.Name = #MemberVar; \
-            prop.DisplayName = DisplayName; \
-            prop.Type = Vanguard::Reflection::ResolveTypeKind<decltype(ClassType::MemberVar)>(); \
-            prop.Offset = offsetof(ClassType, MemberVar); \
-            prop.Size = sizeof(ClassType::MemberVar); \
-            prop.Category = Category; \
-            prop.Tooltip = Tooltip; \
+            prop.Name = #MemberName; \
+            prop.DisplayName = PropDisplayName; \
+            prop.Type = Vanguard::Reflection::ResolveTypeKind<decltype(ClassName::MemberName)>(); \
+            prop.Offset = offsetof(ClassName, MemberName); \
+            prop.Size = sizeof(ClassName::MemberName); \
+            prop.Category = PropCategory; \
+            prop.Tooltip = PropTooltip; \
             meta.Properties.push_back(std::move(prop)); \
         }
 
-#define REFLECT_PROPERTY_RANGE(ClassType, MemberVar, DisplayName, Category, MinVal, MaxVal, StepVal) \
+#define REFLECT_PROPERTY_RANGE(ClassName, MemberName, PropDisplayName, PropCategory, MinVal, MaxVal, StepVal) \
         { \
             Vanguard::Reflection::PropertyMetadata prop; \
-            prop.Name = #MemberVar; \
-            prop.DisplayName = DisplayName; \
-            prop.Type = Vanguard::Reflection::ResolveTypeKind<decltype(ClassType::MemberVar)>(); \
-            prop.Offset = offsetof(ClassType, MemberVar); \
-            prop.Size = sizeof(ClassType::MemberVar); \
-            prop.Category = Category; \
+            prop.Name = #MemberName; \
+            prop.DisplayName = PropDisplayName; \
+            prop.Type = Vanguard::Reflection::ResolveTypeKind<decltype(ClassName::MemberName)>(); \
+            prop.Offset = offsetof(ClassName, MemberName); \
+            prop.Size = sizeof(ClassName::MemberName); \
+            prop.Category = PropCategory; \
             prop.Min = static_cast<float>(MinVal); \
             prop.Max = static_cast<float>(MaxVal); \
             prop.Step = static_cast<float>(StepVal); \

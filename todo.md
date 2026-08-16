@@ -4,49 +4,49 @@
 - [ ] = pending, [x] = done, [~] = in progress
 
 ## A. C++ Engine — Missing Headers (8)
-- [ ] `Include/Reflection/TypeTraits.h` — `ResolveTypeKind<T>()` template specializations (needed by `Macros.h`)
-- [ ] `Include/Reflection/ReflectionRegistry.h` — registry singleton (needed by `Macros.h` + `PropertyInspector.cpp`)
-- [ ] `Include/Scene/Actor.h` — Actor class (needed by `EditorLayer.h`)
-- [ ] `Include/Scene/Components/StaticMeshComponent.h` — reflected component (needed by `StaticMeshComponent.cpp`)
-- [ ] `Include/RenderGraph/RenderGraphHandle.h` — RGTextureHandle (needed by `RenderGraph.h`)
-- [ ] `Include/RenderGraph/BarrierCompiler.h` — barrier compiler API (needed by `BarrierCompiler.cpp`)
-- [ ] `Include/Editor/PropertyInspector.h` — inspector API (needed by `PropertyInspector.cpp`)
-- [ ] `Include/Asset/MeshBaker.h` — mesh baker API (needed by `MeshBaker.cpp`)
+- [x] `Include/Reflection/TypeTraits.h` — `ResolveTypeKind<T>()` template specializations (needed by `Macros.h`)
+- [x] `Include/Reflection/ReflectionRegistry.h` — registry singleton (needed by `Macros.h` + `PropertyInspector.cpp`)
+- [x] `Include/Scene/Actor.h` — Actor class (needed by `EditorLayer.h`)
+- [x] `Include/Scene/Components/StaticMeshComponent.h` — reflected component (needed by `StaticMeshComponent.cpp`)
+- [x] `Include/RenderGraph/RenderGraphHandle.h` — RGTextureHandle (needed by `RenderGraph.h`)
+- [x] `Include/RenderGraph/BarrierCompiler.h` — barrier compiler API (needed by `BarrierCompiler.cpp`)
+- [x] `Include/Editor/PropertyInspector.h` — inspector API (needed by `PropertyInspector.cpp`)
+- [x] `Include/Asset/MeshBaker.h` — mesh baker API (needed by `MeshBaker.cpp`)
 
 ## B. C++ Engine — Missing Sources (12)
-- [ ] `Source/Core/Engine.cpp` — Engine::Initialize/Run/Shutdown/Tick/RenderFrame
-- [ ] `Source/Reflection/ReflectionRegistry.cpp`
-- [ ] `Source/Scene/Actor.cpp`
-- [ ] `Source/Scene/SceneGraph.cpp`
-- [ ] `Source/Physics/PhysicsSystem.cpp` (also add missing `<Jolt/Core/TempAllocator.h>` include)
-- [ ] `Source/RHI/VulkanContext.cpp`
-- [ ] `Source/RenderGraph/RenderGraph.cpp`
-- [ ] `Source/Asset/AssetRegistry.cpp`
-- [ ] `Source/Editor/Main.cpp`
-- [ ] `Source/Editor/EditorLayer.cpp` — ImGui::DockBuilder Unreal-style layout per AGENTS.md
-- [ ] `Source/Editor/GizmoController.cpp`
-- [ ] `Source/Editor/NodeEditorGraph.cpp`
+- [x] `Source/Core/Engine.cpp` — Engine::Initialize/Run/Shutdown/Tick/RenderFrame
+- [x] `Source/Reflection/ReflectionRegistry.cpp`
+- [x] `Source/Scene/Actor.cpp`
+- [x] `Source/Scene/SceneGraph.cpp`
+- [x] `Source/Physics/PhysicsSystem.cpp` (also add missing `<Jolt/Core/TempAllocator.h>` include)
+- [x] `Source/RHI/VulkanContext.cpp`
+- [x] `Source/RenderGraph/RenderGraph.cpp`
+- [x] `Source/Asset/AssetRegistry.cpp`
+- [x] `Source/Editor/Main.cpp`
+- [x] `Source/Editor/EditorLayer.cpp` — ImGui::DockBuilder Unreal-style layout per AGENTS.md
+- [x] `Source/Editor/GizmoController.cpp`
+- [x] `Source/Editor/NodeEditorGraph.cpp`
 
 ## C. C++ Engine — Structural Fixes
-- [ ] Wire `StaticMeshComponent.cpp`, `FilamentViewport.cpp`, `FilamentSceneSetup.cpp` into CMake targets
-- [ ] Add Google Filament dependency to CMakeLists.txt (or document as editor-only)
-- [ ] Provide `STANDARD_PBR_PACKAGE` binary (compiled `standard_pbr.mat`) or guard its usage
-- [ ] Add `ReflectionRegistry.h` include to `Macros.h`
-- [ ] RenderGraph: define `RenderGraphBuilder`/`RenderGraphContext` (forward-declared types)
-- [ ] Replace `JPH::TempAllocatorImpl` include issue in `PhysicsSystem.h`
+- [x] Wire `StaticMeshComponent.cpp`, `FilamentViewport.cpp`, `FilamentSceneSetup.cpp` into CMake targets
+- [x] Add Google Filament dependency to CMakeLists.txt (editor-only, `find_package(filament QUIET)` gate)
+- [x] Provide `STANDARD_PBR_PACKAGE` binary (compiled `standard_pbr.mat`) or guard its usage — empty placeholder + `STANDARD_PBR_PACKAGE_SIZE > 0` guard; real package via `matc -p all -a opengl -a vulkan standard_pbr.mat`
+- [x] Add `ReflectionRegistry.h` include to `Macros.h`
+- [x] RenderGraph: define `RenderGraphBuilder`/`RenderGraphContext` (forward-declared types)
+- [x] Replace `JPH::TempAllocatorImpl` include issue in `PhysicsSystem.h`
 
 ## D. Web App — Structure & Build
-- [ ] Fix 29 `@/components/*` and `@/lib/engine-data/*` imports — move files into `components/` and `lib/engine-data/` (or add path aliases)
-- [ ] Create `app/` directory structure (Next.js App Router) — move `page.tsx`, `layout.tsx`, `route.ts`, `globals.css`, `error.tsx`, `not-found.tsx`
-- [ ] Install web dependencies (`npm install`; bun.lock exists but bun is not available)
-- [ ] Add `GEMINI_API_KEY` runtime config note (`.env.example`)
+- [x] Fix 29 `@/components/*` and `@/lib/engine-data/*` imports — moved 14 components → `components/`, 5 data modules → `lib/engine-data/`, helpers → `lib/` (git mv, history preserved)
+- [x] Create `app/` directory structure (Next.js App Router) — `app/page.tsx`, `app/layout.tsx`, `app/globals.css`, `app/error.tsx`, `app/not-found.tsx`, `app/api/gemini/route.ts`
+- [x] Install web dependencies (`npm install` → `package-lock.json` generated; bun.lock remains for bun users)
+- [x] Add `GEMINI_API_KEY` runtime config note (`.env.example`)
 
 ## E. Toolchain & Dependencies
-- [ ] Install C++ toolchain (cmake, g++/clang) via Nix
-- [ ] Install engine third-party deps (Vulkan SDK, SDL3, glm, Jolt, imgui, Tracy) via Nix/vcpkg
+- [x] Install C++ toolchain (cmake, g++/clang) via Nix — gcc-14.4.0, glm, vulkan-headers installed via `nix profile`
+- [~] Install engine third-party deps (Vulkan SDK, SDL3, glm, Jolt, imgui, Tracy) via Nix/vcpkg — glm + vulkan-headers real; SDL3/Jolt/imgui/Tracy/Filament not in nixpkgs default channel; syntax-checked all 20 TUs (0 errors / 0 warnings) against stubs in `/tmp/opencode/stubs`
 - [ ] Verify a full `cmake --build` succeeds
-- [ ] Verify web app `npm run build` succeeds
+- [x] Verify web app `npm run build` succeeds — `next build` OK (routes `/`, `/_not-found`, `/api/gemini`); `npm run lint` clean
 
 ## F. Docs & Polish
-- [ ] Fill in empty `README.md`
-- [ ] Update `codebase-data.ts` if new files are added to the engine codebase
+- [x] Fill in empty `README.md` — architecture overview, tech stack, build instructions, status
+- [ ] Update `codebase-data.ts` if new files are added to the engine codebase — deferred: sync would need re-dumping all 20 sources into `lib/engine-data/codebase-data.ts`

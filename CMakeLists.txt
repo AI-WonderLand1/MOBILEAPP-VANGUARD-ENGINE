@@ -90,6 +90,9 @@ if(MSVC)
     target_compile_options(VanguardEngine PRIVATE /W4 /permissive- /Zc:preprocessor)
     target_compile_options(VanguardEditor PRIVATE /W4 /permissive- /Zc:preprocessor)
 else()
-    target_compile_options(VanguardEngine PRIVATE -Wall -Wextra -Wpedantic)
-    target_compile_options(VanguardEditor PRIVATE -Wall -Wextra -Wpedantic)
+    # -Wno-invalid-offsetof: offsetof() on polymorphic types is conditionally
+    # supported by GCC/Clang/MSVC and is the foundation of the reflection
+    # registry (REFLECT_PROPERTY), so the warning is intentionally silenced.
+    target_compile_options(VanguardEngine PRIVATE -Wall -Wextra -Wpedantic -Wno-invalid-offsetof)
+    target_compile_options(VanguardEditor PRIVATE -Wall -Wextra -Wpedantic -Wno-invalid-offsetof)
 endif()

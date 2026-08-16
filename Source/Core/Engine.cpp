@@ -35,7 +35,7 @@ void Engine::Initialize() {
     m_SceneGraph = std::make_unique<SceneGraph>();
 
     // 5. Editor layer (Dear ImGui docking).
-    m_EditorLayer = std::make_unique<EditorLayer>();
+    m_EditorLayer = std::make_unique<Editor::EditorLayer>();
     m_EditorLayer->Initialize(VK_NULL_HANDLE, 1);
 }
 
