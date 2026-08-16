@@ -26,7 +26,7 @@ public:
     [[nodiscard]] double GetTotalTime() const noexcept { return m_TotalTime; }
 
 private:
-    Engine() = default;
+    Engine();
     ~Engine(); // Defined in Engine.cpp where all subsystem types are complete.
 
     void ProcessInput();

@@ -9,21 +9,6 @@
 
 namespace Vanguard::Reflection {
 
-enum class TypeKind : uint8_t {
-    Int32,
-    Float,
-    Bool,
-    Vec2,
-    Vec3,
-    Vec4,
-    Quat,
-    Color3,
-    Color4,
-    String,
-    AssetHandle,
-    Enum
-};
-
 struct PropertyMetadata {
     std::string Name;
     std::string DisplayName;
@@ -55,7 +40,7 @@ struct ClassMetadata {
 public: \
     using Super = ParentType; \
     static const Vanguard::Reflection::ClassMetadata& StaticClass(); \
-    virtual const Vanguard::Reflection::ClassMetadata& GetClass() const override { return StaticClass(); }
+    virtual const Vanguard::Reflection::ClassMetadata& GetClass() const { return StaticClass(); }
 
 #define BEGIN_CLASS_REFLECTION(ClassType, ParentType) \
 const Vanguard::Reflection::ClassMetadata& ClassType::StaticClass() { \

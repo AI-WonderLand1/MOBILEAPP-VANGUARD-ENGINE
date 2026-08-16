@@ -2,6 +2,7 @@
 #include "RenderGraph/BarrierCompiler.h"
 #include "RHI/VulkanContext.h"
 #include <algorithm>
+#include <limits>
 #include <tracy/Tracy.hpp>
 
 namespace Vanguard {
@@ -46,7 +47,7 @@ void RenderGraph::ResolveResourceLifetimes() {
     // alias pool -- here modeled as a conservative list of per-texture
     // life ranges that VMA can later feed into VmaAllocationCreateInfo.
     struct Lifetime {
-        size_t FirstTouch = m_Passes.size();
+        size_t FirstTouch = std::numeric_limits<size_t>::max();
         size_t LastTouch = 0;
     };
     std::vector<Lifetime> lifetimes(m_TextureDescs.size());

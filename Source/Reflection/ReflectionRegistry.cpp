@@ -1,4 +1,5 @@
 #include "Reflection/ReflectionRegistry.h"
+#include "Reflection/Macros.h"
 
 namespace Vanguard::Reflection {
 

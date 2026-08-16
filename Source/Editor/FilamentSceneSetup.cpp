@@ -4,6 +4,7 @@
 #include <tracy/Tracy.hpp>
 #include <math/vec3.h>
 #include <math/mat4.h>
+#include <utils/EntityManager.h>
 
 namespace Vanguard::Editor {
 

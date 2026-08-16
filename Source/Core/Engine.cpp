@@ -10,6 +10,7 @@ namespace Vanguard {
 
 using Clock = std::chrono::steady_clock;
 
+Engine::Engine() = default;
 Engine::~Engine() = default;
 
 void Engine::Initialize() {

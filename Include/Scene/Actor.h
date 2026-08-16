@@ -9,6 +9,7 @@
 namespace Vanguard {
 
 class Actor;
+class SceneGraph;
 
 class Component {
 public:
@@ -21,6 +22,8 @@ public:
     [[nodiscard]] Actor* GetOwner() const noexcept { return m_Owner; }
     [[nodiscard]] bool IsEnabled() const noexcept { return m_bEnabled; }
     void SetEnabled(bool bEnabled) noexcept { m_bEnabled = bEnabled; }
+
+    friend class Actor;
 
 protected:
     Actor* m_Owner = nullptr;
@@ -93,6 +96,8 @@ public:
 
     void TickComponents(float deltaTime);
 
+    friend class SceneGraph;
+
 protected:
     std::string m_Name;
     std::string m_Tag = "Untagged";
@@ -102,7 +107,7 @@ protected:
     glm::quat m_Rotation{1.0f, 0.0f, 0.0f, 0.0f};
     glm::vec3 m_Scale{1.0f};
 
-    Actor::Ptr m_Parent;
+    std::weak_ptr<Actor> m_Parent;
     std::vector<Actor::Ptr> m_Children;
     std::vector<std::unique_ptr<Component>> m_Components;
 };

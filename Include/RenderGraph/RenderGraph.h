@@ -10,6 +10,7 @@
 namespace Vanguard {
 
 class VulkanContext;
+class RenderGraph;
 class RenderGraphBuilder;
 class RenderGraphContext;
 
