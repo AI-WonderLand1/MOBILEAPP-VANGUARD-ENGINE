@@ -1,6 +1,8 @@
 #include "Asset/MeshBaker.h"
 #include <fstream>
 #include <vector>
+#include <algorithm>
+#include <limits>
 #include <glm/glm.hpp>
 
 namespace Vanguard::Asset {
@@ -50,6 +52,22 @@ bool MeshBaker::BakeToBinaryVMesh(
     file.write(reinterpret_cast<const char*>(indices.data()), indices.size() * sizeof(uint32_t));
 
     return true;
+}
+
+glm::vec3 MeshBaker::ComputeMinBounds(const std::vector<VertexPBR>& vertices) {
+    glm::vec3 minBounds(std::numeric_limits<float>::max());
+    for (const VertexPBR& vertex : vertices) {
+        minBounds = glm::min(minBounds, vertex.Position);
+    }
+    return minBounds;
+}
+
+glm::vec3 MeshBaker::ComputeMaxBounds(const std::vector<VertexPBR>& vertices) {
+    glm::vec3 maxBounds(std::numeric_limits<float>::lowest());
+    for (const VertexPBR& vertex : vertices) {
+        maxBounds = glm::max(maxBounds, vertex.Position);
+    }
+    return maxBounds;
 }
 
 } // namespace Vanguard::Asset
