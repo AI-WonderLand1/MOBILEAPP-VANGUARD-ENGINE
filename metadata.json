@@ -1,0 +1,6 @@
+{
+  "name": "Vanguard Engine Architect",
+  "description": "Interactive C++20/C++23 custom 3D game engine & editor architecture studio featuring macro reflection, stateless Vulkan/DX12 render graph, Jolt physics, and Dear ImGui docking integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
