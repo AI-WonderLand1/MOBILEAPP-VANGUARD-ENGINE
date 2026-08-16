@@ -73,4 +73,4 @@ npm run dev                  # or: npm run build && npm start
 - Web app `next build` and `eslint` pass clean.
 - A full `cmake --build` still requires the third-party packages (see `todo.md`).
 
-See `todo.md` for the live task tracker.
+See `todo.md` for the live task tracker.# MOBILEAPP-VANGUARD-ENGINE
