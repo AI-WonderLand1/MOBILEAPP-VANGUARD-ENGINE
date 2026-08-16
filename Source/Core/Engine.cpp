@@ -10,6 +10,8 @@ namespace Vanguard {
 
 using Clock = std::chrono::steady_clock;
 
+Engine::~Engine() = default;
+
 void Engine::Initialize() {
     ZoneScopedN("Engine::Initialize");
 

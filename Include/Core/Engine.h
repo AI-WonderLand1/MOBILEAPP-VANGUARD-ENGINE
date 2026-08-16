@@ -27,7 +27,7 @@ public:
 
 private:
     Engine() = default;
-    ~Engine() = default;
+    ~Engine(); // Defined in Engine.cpp where all subsystem types are complete.
 
     void ProcessInput();
     void Tick(float deltaTime);

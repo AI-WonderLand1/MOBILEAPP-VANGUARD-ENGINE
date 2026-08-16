@@ -1,5 +1,6 @@
 #include "Asset/AssetRegistry.h"
 #include <algorithm>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <random>

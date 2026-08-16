@@ -3,9 +3,10 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
-#include "Reflection/Macros.h"
 
 namespace Vanguard::Reflection {
+
+struct ClassMetadata;
 
 // ==========================================
 // Central Class Metadata Registry

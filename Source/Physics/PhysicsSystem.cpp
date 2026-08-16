@@ -6,6 +6,8 @@
 #include <Jolt/Physics/Collision/ObjectLayerPairFilterMask.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <tracy/Tracy.hpp>
+#include <algorithm>
+#include <thread>
 #include <glm/gtc/quaternion.hpp>
 #include <stdexcept>
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>

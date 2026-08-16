@@ -1,5 +1,6 @@
 #include "RHI/VulkanContext.h"
 #include <array>
+#include <cstdio>
 #include <cstring>
 #include <set>
 #include <stdexcept>

@@ -5,6 +5,7 @@
 #include <functional>
 #include <glm/glm.hpp>
 #include "Reflection/TypeTraits.h"
+#include "Reflection/ReflectionRegistry.h"
 
 namespace Vanguard::Reflection {
 

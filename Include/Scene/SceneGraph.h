@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <typeinfo>
 #include <vector>
 #include "Scene/Actor.h"
 

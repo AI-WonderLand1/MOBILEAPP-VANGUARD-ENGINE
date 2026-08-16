@@ -12,6 +12,13 @@ if(VANGUARD_ENABLE_PROFILING)
     add_compile_definitions(TRACY_ENABLE TRACY_ON_DEMAND)
 endif()
 
+# Google Filament viewport (editor-only) is optional; skipped when the
+# package is not discoverable so the engine can still build headless.
+option(VANGUARD_ENABLE_FILAMENT_VIEWPORT "Build the Google Filament editor viewport" ON)
+if(VANGUARD_ENABLE_FILAMENT_VIEWPORT)
+    find_package(filament QUIET)
+endif()
+
 # Find Third-Party Dependencies (via vcpkg / Conan / System)
 find_package(Vulkan REQUIRED)
 find_package(SDL3 REQUIRED CONFIG)
@@ -29,6 +36,7 @@ add_library(VanguardEngine STATIC
     Source/Reflection/ReflectionRegistry.cpp
     Source/Scene/Actor.cpp
     Source/Scene/SceneGraph.cpp
+    Source/Scene/Components/StaticMeshComponent.cpp
     Source/Physics/PhysicsSystem.cpp
     Source/RHI/VulkanContext.cpp
     Source/RenderGraph/RenderGraph.cpp
@@ -65,6 +73,17 @@ target_link_libraries(VanguardEditor PRIVATE
     VanguardEngine
     imgui::imgui
 )
+
+# Optional Filament-backed 3D viewport (skipped when filament is not found).
+if(VANGUARD_ENABLE_FILAMENT_VIEWPORT AND filament_FOUND)
+    target_sources(VanguardEditor PRIVATE
+        Source/Editor/FilamentViewport.cpp
+        Source/Editor/FilamentSceneSetup.cpp
+        Source/Editor/StandardPbrPackage.cpp
+    )
+    target_include_directories(VanguardEditor PRIVATE ${FILAMENT_INCLUDE_DIRS})
+    target_link_libraries(VanguardEditor PRIVATE ${FILAMENT_LIBRARIES})
+endif()
 
 # Compiler Warning Flags (Clang / GCC / MSVC)
 if(MSVC)

@@ -139,7 +139,8 @@ void EditorLayer::RenderViewportPanel() {
 
     m_bViewportFocused = ImGui::IsWindowFocused();
     m_bViewportHovered = ImGui::IsWindowHovered();
-    m_ViewportSize = ImGui::GetContentRegionAvail();
+    const ImVec2 avail = ImGui::GetContentRegionAvail();
+    m_ViewportSize = glm::vec2(avail.x, avail.y);
 
     // Transformed actor translation gizmo (ImGuizmo integration point).
     if (m_SelectedActor && m_bViewportHovered) {
@@ -158,7 +159,7 @@ void EditorLayer::RenderSceneOutliner() {
     ImGui::TextDisabled("World Actors (%zu)", world.GetActorCount());
     ImGui::Separator();
 
-    if (ImGui::BeginListBox("##ActorList", ImVec2(-FLT_MIN, -FLT_MIN))) {
+    if (ImGui::BeginListBox("##ActorList", ImVec2(-1.0f, -1.0f))) {
         for (const auto& actor : world.GetActors()) {
             const bool bIsSelected = (m_SelectedActor == actor.get());
             std::string label = actor->GetName() + "##" + std::to_string(reinterpret_cast<uintptr_t>(actor.get()));

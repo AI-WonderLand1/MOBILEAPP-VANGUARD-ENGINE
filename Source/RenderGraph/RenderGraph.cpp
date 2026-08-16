@@ -1,6 +1,7 @@
 #include "RenderGraph/RenderGraph.h"
 #include "RenderGraph/BarrierCompiler.h"
 #include "RHI/VulkanContext.h"
+#include <algorithm>
 #include <tracy/Tracy.hpp>
 
 namespace Vanguard {

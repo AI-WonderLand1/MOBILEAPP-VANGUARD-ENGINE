@@ -2,6 +2,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include "Scene/Actor.h"
+#include "Reflection/Macros.h"
 
 namespace Vanguard {
 
@@ -12,6 +13,8 @@ namespace Vanguard {
 // The runtime schema for the editor inspector is declared via the reflection
 // macros in Source/Scene/Components/StaticMeshComponent.cpp.
 class StaticMeshComponent : public Component {
+    REFLECT_CLASS(StaticMeshComponent, Component)
+
 public:
     StaticMeshComponent();
     ~StaticMeshComponent() override;
