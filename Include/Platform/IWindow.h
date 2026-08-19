@@ -4,6 +4,7 @@
 #include <memory>
 #include <vulkan/vulkan.h>
 #include <cstdint>
+#include "Input/InputTypes.h"
 
 namespace Vanguard::Platform {
 
@@ -36,7 +37,7 @@ public:
 
     virtual void* GetNativeHandle() const noexcept = 0;
 
-    using EventCallback = std::function<void(const void* platformEvent)>;
+    using EventCallback = std::function<void(const Input::InputEvent&)>;
     virtual void SetEventCallback(EventCallback callback) = 0;
 
     virtual void SetFullscreen(bool fullscreen) = 0;

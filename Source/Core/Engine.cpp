@@ -3,9 +3,11 @@
 #include "Scene/SceneGraph.h"
 #include "Editor/EditorLayer.h"
 #include "Platform/Platform.h"
+#include "Input/InputSystem.h"
 #include <chrono>
 #include <stdexcept>
 #include <tracy/Tracy.hpp>
+#include "RenderGraph/BarrierCompiler.h"
 
 namespace Vanguard {
 
@@ -27,6 +29,11 @@ void Engine::Initialize() {
     if (!m_Window || !m_Window->Initialize(windowConfig)) {
         throw std::runtime_error("Failed to initialize platform window");
     }
+
+    // Set up input event callback
+    m_Window->SetEventCallback([this](const Input::InputEvent& event) {
+        m_InputSystem->OnEvent(event);
+    });
 
     m_VulkanContext = std::make_unique<VulkanContext>();
     VulkanContextConfig rhiConfig;
@@ -50,7 +57,10 @@ void Engine::Initialize() {
     m_SceneGraph = std::make_unique<SceneGraph>();
 
     m_EditorLayer = std::make_unique<Editor::EditorLayer>();
-    m_EditorLayer->Initialize(m_VulkanContext->GetSwapchain().GetImages()[0].View, m_VulkanContext->GetSwapchain().GetImageCount());
+    m_EditorLayer->Initialize(m_VulkanContext->GetRenderPass(), m_VulkanContext->GetSwapchain().GetImageCount());
+
+    // Initialize input system
+    m_InputSystem = std::make_unique<Input::InputSystem>();
 }
 
 void Engine::Run() {
@@ -77,6 +87,7 @@ void Engine::Run() {
 void Engine::ProcessInput() {
     ZoneScopedN("Engine::ProcessInput");
     m_Window->PollEvents();
+    m_InputSystem->NewFrame();
 }
 
 void Engine::Tick(float deltaTime) {
@@ -120,7 +131,67 @@ void Engine::RenderFrame() {
         throw std::runtime_error("Failed to acquire swapchain image");
     }
 
-    // TODO: Record and submit command buffer for this frame
+    // Get the image to clear
+    VkImage image = m_VulkanContext->GetSwapchain().GetImage(imageIndex);
+    if (image == VK_NULL_HANDLE) {
+        throw std::runtime_error("Failed to get swapchain image");
+    }
+
+    // Begin a single-time command buffer
+    VkCommandBuffer commandBuffer = m_VulkanContext->BeginSingleTimeCommand();
+
+    // Transition image from undefined to transfer destination
+    {
+        BarrierCompiler barrierCompiler;
+        barrierCompiler.EmitImageBarrier(
+            commandBuffer,
+            image,
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0,
+            VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_IMAGE_ASPECT_COLOR_BIT
+        );
+    }
+
+    // Clear the image with a dark gray color
+    VkClearColorValue clearColor = {0.1f, 0.1f, 0.1f, 1.0f};
+    VkImageSubresourceRange subresourceRange{};
+    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = 1;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount = 1;
+
+    vkCmdClearColorImage(
+        commandBuffer,
+        image,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        &clearColor,
+        1,
+        &subresourceRange
+    );
+
+    // Transition image from transfer destination to present
+    {
+        BarrierCompiler barrierCompiler;
+        barrierCompiler.EmitImageBarrier(
+            commandBuffer,
+            image,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            VK_ACCESS_TRANSFER_WRITE_BIT,
+            0,
+            VK_IMAGE_ASPECT_COLOR_BIT
+        );
+    }
+
+    // End the command buffer
+    m_VulkanContext->EndSingleTimeCommand(commandBuffer);
 
     if (m_EditorLayer) {
         m_EditorLayer->BeginFrame();
@@ -149,6 +220,7 @@ void Engine::Shutdown() {
     m_PhysicsSystem.reset();
     m_VulkanContext->Shutdown();
     m_VulkanContext.reset();
+    m_InputSystem.reset();
     m_Window->Shutdown();
     m_Window.reset();
 }

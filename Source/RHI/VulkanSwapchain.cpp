@@ -109,6 +109,13 @@ public:
     [[nodiscard]] VkExtent2D GetExtent() const noexcept override { return m_Extent; }
     [[nodiscard]] VkSurfaceKHR GetSurface() const noexcept override { return m_Config.Surface; }
     [[nodiscard]] uint32_t GetImageCount() const noexcept override { return m_ImageCount; }
+    
+    [[nodiscard]] VkImage GetImage(uint32_t index) const noexcept override {
+        if (index >= m_Images.size()) {
+            return VK_NULL_HANDLE;
+        }
+        return m_Images[index].Image;
+    }
 
     void SetContext(VulkanContext* context) { config.pContext = context; }
 
@@ -132,7 +139,7 @@ private:
         VkFormat preferredFormat,
         VkColorSpaceKHR preferredColorSpace
     ) {
-        uint32_t formatCount = 0;
+        uint32t formatCount = 0;
         vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
 
         if (formatCount == 0) {
@@ -317,10 +324,6 @@ private:
             if (image.View != VK_NULL_HANDLE) {
                 vkDestroyImageView(config.pContext->GetDevice(), image.View, nullptr);
                 image.View = VK_NULL_HANDLE;
-            }
-            if (image.Framebuffer != VK_NULL_HANDLE) {
-                vkDestroyFramebuffer(config.pContext->GetDevice(), image.Framebuffer, nullptr);
-                image.Framebuffer = VK_NULL_HANDLE;
             }
         }
         m_Images.clear();

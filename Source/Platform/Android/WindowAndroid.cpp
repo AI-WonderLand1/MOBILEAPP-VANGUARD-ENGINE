@@ -6,6 +6,7 @@
 #include <vulkan/vulkan_android.h>
 #include <stdexcept>
 #include <utility>
+#include "Input/InputTypes.h"
 
 namespace Vanguard::Platform {
 
@@ -16,7 +17,7 @@ struct AndroidWindowState {
     bool shouldClose = false;
     int32_t width = 0;
     int32_t height = 0;
-    std::function<void(const void*)> eventCallback;
+    std::function<void(const Input::InputEvent&)> eventCallback;
 };
 
 static void AndroidHandleCmd(struct android_app* app, int32_t cmd) {
@@ -61,16 +62,64 @@ static void AndroidHandleCmd(struct android_app* app, int32_t cmd) {
             break;
     }
 
-    if (state->eventCallback) {
-        state->eventCallback(&cmd);
+    // Handle window resize command
+    if (state->eventCallback && cmd == APP_CMD_WINDOW_RESIZED) {
+        Input::InputEvent event;
+        event.Type = Input::EventType::WindowResized;
+        // Note: We don't have the new size here, but we can get it from the window
+        // when we actually need it, or we could store it when we get INIT_WINDOW
+        // For now, we'll leave it at default size and update via poll events
+        state->eventCallback(event);
     }
 }
 
 static int32_t AndroidHandleInput(struct android_app* app, AInputEvent* event) {
     auto* state = static_cast<AndroidWindowState*>(app->userData);
     if (!state || !state->eventCallback) return 0;
-    state->eventCallback(event);
-    return 1;
+
+    int32_t action = AMotionEvent_getAction(event);
+    int32_t pointerIndex = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >>
+                          AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+    int32_t actionCode = action & AMOTION_EVENT_ACTION_MASK;
+    int32_t pointerId = AMotionEvent_getPointerId(event, pointerIndex);
+    float x = AMotionEvent_getX(event, pointerIndex);
+    float y = AMotionEvent_getY(event, pointerIndex);
+
+    Input::InputEvent inputEvent;
+    inputEvent.Type = Input::EventType::None;
+
+    switch (actionCode) {
+        case AMOTION_EVENT_ACTION_DOWN:
+        case AMOTION_EVENT_ACTION_POINTER_DOWN:
+            inputEvent.Type = Input::EventType::TouchDown;
+            inputEvent.Touch.TouchId = pointerId;
+            inputEvent.Touch.X = static_cast<int32_t>(x);
+            inputEvent.Touch.Y = static_cast<int32_t>(y);
+            inputEvent.Touch.Pressure = AMotionEvent_getPressure(event, pointerIndex);
+            break;
+            
+        case AMOTION_EVENT_ACTION_UP:
+        case AMOTION_EVENT_ACTION_POINTER_UP:
+            inputEvent.Type = Input::EventType::TouchUp;
+            inputEvent.Touch.TouchId = pointerId;
+            inputEvent.Touch.X = static_cast<int32_t>(x);
+            inputEvent.Touch.Y = static_cast<int32_t>(y);
+            break;
+            
+        case AMOTION_EVENT_ACTION_MOVE:
+            inputEvent.Type = Input::EventType::TouchMoved;
+            inputEvent.Touch.TouchId = pointerId;
+            inputEvent.Touch.X = static_cast<int32_t>(x);
+            inputEvent.Touch.Y = static_cast<int32_t>(y);
+            inputEvent.Touch.Pressure = AMotionEvent_getPressure(event, pointerIndex);
+            break;
+    }
+
+    if (inputEvent.Type != Input::EventType::None && state->eventCallback) {
+        state->eventCallback(inputEvent);
+    }
+    
+    return 1; // Event was handled
 }
 
 class WindowAndroid final : public IWindow {

@@ -47,6 +47,11 @@ public:
     [[nodiscard]] RHI::ISwapchain& GetSwapchain() noexcept { return *m_Swapchain; }
     [[nodiscard]] const RHI::ISwapchain& GetSwapchain() const noexcept { return *m_Swapchain; }
 
+    // Render Pass
+    [[nodiscard]] VkRenderPass GetRenderPass() const noexcept { return m_RenderPass; }
+    void CreateRenderPass();
+    void DestroyRenderPass();
+
     // Device Selection
     bool PickPhysicalDevice();
     uint32_t FindGraphicsQueueFamily() const noexcept { return m_GraphicsQueueFamily; }
@@ -87,6 +92,7 @@ private:
 
     VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
     std::unique_ptr<RHI::ISwapchain> m_Swapchain;
+    VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 
     VkDebugUtilsMessengerEXT m_DebugMessenger = VK_NULL_HANDLE;
 };

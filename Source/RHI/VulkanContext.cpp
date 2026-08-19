@@ -115,6 +115,57 @@ void VulkanContext::CreateInstance(const VulkanContextConfig& config) {
 #endif // VANGUARD_ENABLE_VULKAN_VALIDATION
 }
 
+void VulkanContext::CreateRenderPass() {
+    DestroyRenderPass();
+
+    VkAttachmentDescription colorAttachment{};
+    colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM; // Will be updated when swapchain is created
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference colorAttachmentRef{};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+
+    VkSubpassDependency dependency{};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;
+
+    if (vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create render pass!");
+    }
+}
+
+void VulkanContext::DestroyRenderPass() {
+    if (m_RenderPass != VK_NULL_HANDLE) {
+        vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
+        m_RenderPass = VK_NULL_HANDLE;
+    }
+}
+
 bool VulkanContext::PickPhysicalDevice() {
     ZoneScopedN("VulkanContext::PickPhysicalDevice");
 
@@ -186,7 +237,7 @@ void VulkanContext::CreateDevice() {
     const float queuePriority = 1.0f;
     for (const uint32_t family : uniqueFamilies) {
         queueCreateInfos.push_back(VkDeviceQueueCreateInfo{
-            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
             .queueFamilyIndex = family,
             .queueCount = 1,
             .pQueuePriorities = &queuePriority,
@@ -286,6 +337,7 @@ void VulkanContext::DestroyDebugMessenger() const {
 void VulkanContext::Shutdown() {
     DestroySwapchain();
     DestroySurface();
+    DestroyRenderPass();
 
     if (m_Device != VK_NULL_HANDLE) {
         vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
@@ -350,6 +402,7 @@ void VulkanContext::DestroySurface() {
 
 void VulkanContext::CreateSwapchain(uint32_t width, uint32_t height) {
     DestroySwapchain();
+    DestroyRenderPass(); // Render pass depends on swapchain format
 
     m_Swapchain = std::make_unique<RHI::VulkanSwapchain>();
     m_Swapchain->SetContext(this);
@@ -368,13 +421,16 @@ void VulkanContext::CreateSwapchain(uint32_t width, uint32_t height) {
     if (!m_Swapchain->Initialize(config)) {
         throw std::runtime_error("Failed to initialize swapchain");
     }
+
+    // Update render pass with actual swapchain format
+    CreateRenderPass();
 }
 
 void VulkanContext::DestroySwapchain() {
     m_Swapchain.reset();
 }
 
-void VulkanContext::RecreateSwapchain(uint32_t width, uint32_t height) {
+void VulkanContext::RecreateSwapchain(uint32_t height, uint32_t width) {
     CreateSwapchain(width, height);
 }
 

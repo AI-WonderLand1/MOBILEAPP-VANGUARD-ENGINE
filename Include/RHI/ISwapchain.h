@@ -39,6 +39,8 @@ public:
     [[nodiscard]] virtual VkExtent2D GetExtent() const noexcept = 0;
     [[nodiscard]] virtual VkSurfaceKHR GetSurface() const noexcept = 0;
     [[nodiscard]] virtual uint32_t GetImageCount() const noexcept = 0;
+    
+    [[nodiscard]] virtual VkImage GetImage(uint32_t index) const noexcept = 0;
 };
 
 } // namespace Vanguard::RHI

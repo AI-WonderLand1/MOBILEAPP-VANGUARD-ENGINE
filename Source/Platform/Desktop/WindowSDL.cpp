@@ -3,6 +3,7 @@
 #include <SDL3/SDL_vulkan.h>
 #include <stdexcept>
 #include <utility>
+#include "Input/InputTypes.h"
 
 namespace Vanguard::Platform {
 
@@ -62,8 +63,61 @@ public:
                 m_Config.Height = static_cast<uint32_t>(event.window.data2);
             }
 
-            if (m_EventCallback) {
-                m_EventCallback(&event);
+            // Translate SDL event to engine input event
+            Input::InputEvent inputEvent;
+            inputEvent.Type = Input::EventType::None;
+
+            switch (event.type) {
+                case SDL_EVENT_KEY_DOWN:
+                    inputEvent.Type = Input::EventType::KeyPressed;
+                    inputEvent.Key.KeyCode = event.key.keysym.sym;
+                    inputEvent.Key.Repeat = event.key.repeat;
+                    break;
+                    
+                case SDL_EVENT_KEY_UP:
+                    inputEvent.Type = Input::EventType::KeyReleased;
+                    inputEvent.Key.KeyCode = event.key.keysym.sym;
+                    inputEvent.Key.Repeat = event.key.repeat;
+                    break;
+                    
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                    inputEvent.Type = Input::EventType::MouseButtonPressed;
+                    inputEvent.MouseButton.Button = event.button.button;
+                    inputEvent.MouseButton.X = event.button.x;
+                    inputEvent.MouseButton.Y = event.button.y;
+                    break;
+                    
+                case SDL_EVENT_MOUSE_BUTTON_UP:
+                    inputEvent.Type = Input::EventType::MouseButtonReleased;
+                    inputEvent.MouseButton.Button = event.button.button;
+                    inputEvent.MouseButton.X = event.button.x;
+                    inputEvent.MouseButton.Y = event.button.y;
+                    break;
+                    
+                case SDL_EVENT_MOUSE_MOTION:
+                    inputEvent.Type = Input::EventType::MouseMoved;
+                    inputEvent.MouseMove.X = event.motion.x;
+                    inputEvent.MouseMove.Y = event.motion.y;
+                    break;
+                    
+                case SDL_EVENT_MOUSE_WHEEL:
+                    inputEvent.Type = Input::EventType::MouseScrolled;
+                    inputEvent.MouseScroll.XOffset = static_cast<float>(event.wheel.x);
+                    inputEvent.MouseScroll.YOffset = static_cast<float>(event.wheel.y);
+                    break;
+                    
+                case SDL_EVENT_WINDOW_RESIZED:
+                    inputEvent.Type = Input::EventType::WindowResized;
+                    inputEvent.WindowResize.Width = event.window.data1;
+                    inputEvent.WindowResize.Height = event.window.data2;
+                    break;
+                    
+                default:
+                    break;
+            }
+
+            if (inputEvent.Type != Input::EventType::None && m_EventCallback) {
+                m_EventCallback(inputEvent);
             }
         }
         return !m_ShouldClose;
