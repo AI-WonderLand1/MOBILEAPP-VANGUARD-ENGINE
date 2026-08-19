@@ -28,35 +28,56 @@ find_package(imgui REQUIRED CONFIG)
 find_package(Tracy REQUIRED CONFIG)
 
 # ==========================================
-# 1. Engine Core Target (Core / RHI / Scene / Physics)
+# Platform Abstraction
+# ==========================================
+option(VANGUARD_PLATFORM "Target platform" "Desktop")
+if(VANGUARD_PLATFORM STREQUAL "Desktop")
+    add_subdirectory(Platform/Desktop)
+elseif(VANGUARD_PLATFORM STREQUAL "Android")
+    add_subdirectory(Platform/Android)
+elseif(VANGUARD_PLATFORM STREQUAL "iOS")
+    message(FATAL_ERROR "iOS platform not yet implemented")
+endif()
+
+# ==========================================
+# 1. Engine Core Target (Core / RHI / Scene / Physics / Asset / RenderGraph)
 # ==========================================
 add_library(VanguardEngine STATIC
     Source/Core/Engine.cpp
-    Source/Core/Window.cpp
+    # Source/Core/Window.cpp  # Removed - now using platform abstraction
     Source/Reflection/ReflectionRegistry.cpp
     Source/Scene/Actor.cpp
     Source/Scene/SceneGraph.cpp
     Source/Scene/Components/StaticMeshComponent.cpp
     Source/Physics/PhysicsSystem.cpp
     Source/RHI/VulkanContext.cpp
-    Source/RenderGraph/RenderGraph.cpp
-    Source/RenderGraph/BarrierCompiler.cpp
+    Source/RHI/VulkanSwapchain.cpp
     Source/Asset/AssetRegistry.cpp
     Source/Asset/MeshBaker.cpp
+    Source/RenderGraph/RenderGraph.cpp
+    Source/RenderGraph/BarrierCompiler.cpp
 )
 
 target_include_directories(VanguardEngine PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>
+    $<INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Platform/${VANGUARD_PLATFORM}/Include>
     $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(VanguardEngine PUBLIC
     Vulkan::Vulkan
-    SDL3::SDL3
+    SDL3::SDL3  # Keep SDL3 for now as it's used by other systems (input, etc.)
     glm::glm
     Jolt::Jolt
     Tracy::TracyClient
 )
+
+# Platform-specific windowing
+if(VANGUARD_PLATFORM STREQUAL "Desktop")
+    target_link_libraries(VanguardEngine PUBLIC VanguardPlatformDesktopShared)
+elseif(VANGUARD_PLATFORM STREQUAL "Android")
+    target_link_libraries(VanguardEngine PUBLIC VanguardPlatformAndroidShared)
+endif()
 
 # ==========================================
 # 2. Vanguard Editor Target (Dear ImGui Docking & Tooling)
@@ -90,9 +111,9 @@ if(MSVC)
     target_compile_options(VanguardEngine PRIVATE /W4 /permissive- /Zc:preprocessor)
     target_compile_options(VanguardEditor PRIVATE /W4 /permissive- /Zc:preprocessor)
 else()
-    # -Wno-invalid-offsetof: offsetof() on polymorphic types is conditionally
-    # supported by GCC/Clang/MSVC and is the foundation of the reflection
-    # registry (REFLECT_PROPERTY), so the warning is intentionally silenced.
+    // -Wno-invalid-offsetof: offsetof() on polymorphic types is conditionally
+    // supported by GCC/Clang/MSVC and is the foundation of the reflection
+    // registry (REFLECT_PROPERTY), so the warning is intentionally silenced.
     target_compile_options(VanguardEngine PRIVATE -Wall -Wextra -Wpedantic -Wno-invalid-offsetof)
     target_compile_options(VanguardEditor PRIVATE -Wall -Wextra -Wpedantic -Wno-invalid-offsetof)
 endif()

@@ -1,4 +1,5 @@
 #include "RHI/VulkanContext.h"
+#include "RHI/VulkanSwapchain.h"
 #include <array>
 #include <cstdio>
 #include <cstring>
@@ -101,21 +102,25 @@ void VulkanContext::CreateInstance(const VulkanContextConfig& config) {
         .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                       VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+                      VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                      VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
         .pfnUserCallback = DebugMessengerCallback,
     };
     VkDebugUtilsMessengerEXT messenger = VK_NULL_HANDLE;
     if (auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
             vkGetInstanceProcAddr(m_Instance, "vkCreateDebugUtilsMessengerEXT"))) {
         func(m_Instance, &debugInfo, nullptr, &messenger);
+        m_DebugMessenger = messenger;
     }
 #endif // VANGUARD_ENABLE_VULKAN_VALIDATION
 }
 
-bool VulkanContext::PickPhysicalDevice(VkSurfaceKHR surface) {
+bool VulkanContext::PickPhysicalDevice() {
     ZoneScopedN("VulkanContext::PickPhysicalDevice");
-    m_SelectedSurface = surface;
+
+    if (m_Surface == VK_NULL_HANDLE) {
+        return false;
+    }
 
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr);
@@ -142,8 +147,8 @@ bool VulkanContext::PickPhysicalDevice(VkSurfaceKHR surface) {
             if (family.queueFlags & VK_QUEUE_COMPUTE_BIT) compute = i;
 
             VkBool32 supportsPresent = VK_FALSE;
-            if (surface != VK_NULL_HANDLE) {
-                vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &supportsPresent);
+            if (m_Surface != VK_NULL_HANDLE) {
+                vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_Surface, &supportsPresent);
                 if (supportsPresent) present = i;
             }
         }
@@ -268,11 +273,20 @@ void VulkanContext::EndSingleTimeCommand(VkCommandBuffer cmdBuffer) const {
 }
 
 void VulkanContext::DestroyDebugMessenger() const {
-    // The messenger is destroyed with the instance; explicit teardown is not
-    // required because the instance owns it.
+    if (m_DebugMessenger != VK_NULL_HANDLE) {
+        auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+            vkGetInstanceProcAddr(m_Instance, "vkDestroyDebugUtilsMessengerEXT")
+        );
+        if (func) {
+            func(m_Instance, m_DebugMessenger, nullptr);
+        }
+    }
 }
 
 void VulkanContext::Shutdown() {
+    DestroySwapchain();
+    DestroySurface();
+
     if (m_Device != VK_NULL_HANDLE) {
         vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
         vkDestroyDevice(m_Device, nullptr);
@@ -284,6 +298,84 @@ void VulkanContext::Shutdown() {
         vkDestroyInstance(m_Instance, nullptr);
         m_Instance = VK_NULL_HANDLE;
     }
+}
+
+void VulkanContext::CreateSurface(void* nativeWindow) {
+    DestroySurface();
+
+    // Android path
+#if defined(VANGUARD_PLATFORM_ANDROID)
+    if (nativeWindow) {
+        ANativeWindow* window = static_cast<ANativeWindow*>(nativeWindow);
+        VkAndroidSurfaceCreateInfoKHR createInfo{
+            .sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
+            .pNext = nullptr,
+            .flags = 0,
+            .window = window
+        };
+
+        PFN_vkCreateAndroidSurfaceKHR func = reinterpret_cast<PFN_vkCreateAndroidSurfaceKHR>(
+            vkGetInstanceProcAddr(m_Instance, "vkCreateAndroidSurfaceKHR")
+        );
+        if (!func) {
+            throw std::runtime_error("Failed to find vkCreateAndroidSurfaceKHR");
+        }
+
+        VkResult result = func(m_Instance, &createInfo, nullptr, &m_Surface);
+        if (result != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create Android surface");
+        }
+        return;
+    }
+#endif
+
+    // SDL3 path (default)
+    if (nativeWindow) {
+        SDL_Window* window = static_cast<SDL_Window*>(nativeWindow);
+        if (!SDL_Vulkan_CreateSurface(window, m_Instance, nullptr, &m_Surface)) {
+            throw std::runtime_error("Failed to create SDL3 surface: " + std::string(SDL_GetError()));
+        }
+        return;
+    }
+
+    throw std::runtime_error("Failed to create Vulkan surface: nativeWindow is null");
+}
+
+void VulkanContext::DestroySurface() {
+    if (m_Surface != VK_NULL_HANDLE) {
+        vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
+        m_Surface = VK_NULL_HANDLE;
+    }
+}
+
+void VulkanContext::CreateSwapchain(uint32_t width, uint32_t height) {
+    DestroySwapchain();
+
+    m_Swapchain = std::make_unique<RHI::VulkanSwapchain>();
+    m_Swapchain->SetContext(this);
+
+    RHI::SwapchainConfig config{
+        .Surface = m_Surface,
+        .Width = width,
+        .Height = height,
+        .PreferredFormat = VK_FORMAT_R8G8B8A8_UNORM,
+        .PreferredColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+        .PreferredPresentMode = VK_PRESENT_MODE_MAILBOX_KHR,
+        .MinImageCount = 3,
+        .bEnableVsync = false
+    };
+
+    if (!m_Swapchain->Initialize(config)) {
+        throw std::runtime_error("Failed to initialize swapchain");
+    }
+}
+
+void VulkanContext::DestroySwapchain() {
+    m_Swapchain.reset();
+}
+
+void VulkanContext::RecreateSwapchain(uint32_t width, uint32_t height) {
+    CreateSwapchain(width, height);
 }
 
 } // namespace Vanguard

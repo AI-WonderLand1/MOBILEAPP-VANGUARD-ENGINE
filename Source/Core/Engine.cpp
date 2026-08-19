@@ -2,6 +2,7 @@
 #include "RHI/VulkanContext.h"
 #include "Scene/SceneGraph.h"
 #include "Editor/EditorLayer.h"
+#include "Platform/Platform.h"
 #include <chrono>
 #include <stdexcept>
 #include <tracy/Tracy.hpp>
@@ -16,27 +17,40 @@ Engine::~Engine() = default;
 void Engine::Initialize() {
     ZoneScopedN("Engine::Initialize");
 
-    // 1. Window (SDL3 + Vulkan surface).
-    WindowConfig windowConfig;
+    Platform::WindowConfig windowConfig;
     windowConfig.Title = "Vanguard Engine [Vulkan 1.3]";
-    m_Window = std::make_unique<Window>(windowConfig);
+    windowConfig.Width = 1920;
+    windowConfig.Height = 1080;
+    windowConfig.bEnableVulkan = true;
 
-    // 2. Vulkan context.
+    m_Window = Platform::CreateWindow(windowConfig);
+    if (!m_Window || !m_Window->Initialize(windowConfig)) {
+        throw std::runtime_error("Failed to initialize platform window");
+    }
+
     m_VulkanContext = std::make_unique<VulkanContext>();
     VulkanContextConfig rhiConfig;
     rhiConfig.AppName = "Vanguard Engine";
     m_VulkanContext->Initialize(rhiConfig);
 
-    // 3. Physics subsystem (Jolt).
+    // Create surface from window
+    if (auto* nativeHandle = m_Window->GetNativeHandle()) {
+        m_VulkanContext->CreateSurface(nativeHandle);
+    } else {
+        throw std::runtime_error("Window native handle is null");
+    }
+
+    // Create swapchain
+    auto extent = m_Window->GetExtent();
+    m_VulkanContext->CreateSwapchain(extent.Width, extent.Height);
+
     m_PhysicsSystem = std::make_unique<PhysicsSystem>();
     m_PhysicsSystem->Initialize();
 
-    // 4. World / scene graph.
     m_SceneGraph = std::make_unique<SceneGraph>();
 
-    // 5. Editor layer (Dear ImGui docking).
     m_EditorLayer = std::make_unique<Editor::EditorLayer>();
-    m_EditorLayer->Initialize(VK_NULL_HANDLE, 1);
+    m_EditorLayer->Initialize(m_VulkanContext->GetSwapchain().GetImages()[0].View, m_VulkanContext->GetSwapchain().GetImageCount());
 }
 
 void Engine::Run() {
@@ -68,25 +82,59 @@ void Engine::ProcessInput() {
 void Engine::Tick(float deltaTime) {
     ZoneScopedN("Engine::Tick");
 
-    // Fixed-timestep physics accumulator (60Hz) for simulation stability.
     m_PhysicsAccumulator += deltaTime;
     while (m_PhysicsAccumulator >= c_FixedPhysicsTimeStep) {
         m_PhysicsSystem->Update(c_FixedPhysicsTimeStep);
         m_PhysicsAccumulator -= c_FixedPhysicsTimeStep;
     }
 
-    // Tick world actors & components.
     m_SceneGraph->Tick(deltaTime);
 }
 
 void Engine::RenderFrame() {
     ZoneScopedN("Engine::RenderFrame");
 
+    // Acquire next image from swapchain
+    uint32_t imageIndex = 0;
+    VkResult result = m_VulkanContext->GetSwapchain().AcquireNextImage(
+        UINT64_MAX, 
+        VK_NULL_HANDLE, 
+        VK_NULL_HANDLE, 
+        &imageIndex
+    );
+
+    // Handle swapchain recreation if needed
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        auto extent = m_Window->GetExtent();
+        m_VulkanContext->RecreateSwapchain(extent.Width, extent.Height);
+        // Retry frame acquisition
+        result = m_VulkanContext->GetSwapchain().AcquireNextImage(
+            UINT64_MAX, 
+            VK_NULL_HANDLE, 
+            VK_NULL_HANDLE, 
+            &imageIndex
+        );
+    }
+
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("Failed to acquire swapchain image");
+    }
+
+    // TODO: Record and submit command buffer for this frame
+
     if (m_EditorLayer) {
         m_EditorLayer->BeginFrame();
         m_EditorLayer->RenderUI();
         m_EditorLayer->EndFrame(VK_NULL_HANDLE);
     }
+
+    // Present the image
+    m_VulkanContext->GetSwapchain().Present(
+        m_VulkanContext->GetPresentQueue(),
+        imageIndex,
+        nullptr,
+        0
+    );
 }
 
 void Engine::Shutdown() {
@@ -101,6 +149,7 @@ void Engine::Shutdown() {
     m_PhysicsSystem.reset();
     m_VulkanContext->Shutdown();
     m_VulkanContext.reset();
+    m_Window->Shutdown();
     m_Window.reset();
 }
 

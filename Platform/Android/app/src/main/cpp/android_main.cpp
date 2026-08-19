@@ -3,6 +3,8 @@
 #include <chrono>
 #include <thread>
 
+#include "Platform/Platform.h"
+
 #define LOG_TAG "VanguardAndroid"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
@@ -37,7 +39,7 @@ void android_main(android_app* app) {
     app->onAppCmd = handle_cmd;
     app->onInputEvent = handle_input;
 
-    LOGI("Vanguard Android starting (M0 - minimal native app)");
+    LOGI("Vanguard Android starting");
 
     int events;
     android_poll_source* source;
@@ -57,7 +59,8 @@ void android_main(android_app* app) {
         auto dt = std::chrono::duration<float>(now - last_time).count();
         last_time = now;
 
-        // M0: just log frame time
+        // Engine frame would go here
+        // For now, just log frame time
         static int frame = 0;
         if (++frame % 60 == 0) {
             LOGI("Frame %d, dt=%.4f", frame, dt);

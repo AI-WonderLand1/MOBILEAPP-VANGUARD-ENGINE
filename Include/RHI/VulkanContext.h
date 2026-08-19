@@ -2,6 +2,11 @@
 #include <cstdint>
 #include <vector>
 #include <vulkan/vulkan.h>
+#include <memory>
+
+namespace Vanguard::RHI {
+    class ISwapchain;
+}
 
 namespace Vanguard {
 
@@ -24,12 +29,26 @@ public:
 
     VulkanContext(const VulkanContext&) = delete;
     VulkanContext& operator=(const VulkanContext&) = delete;
+    VulkanContext(VulkanContext&&) noexcept = delete;
+    VulkanContext& operator=(VulkanContext&&) noexcept = delete;
 
     void Initialize(const VulkanContextConfig& config);
     void Shutdown();
 
+    // Surface Management
+    void CreateSurface(void* nativeWindow);
+    void DestroySurface();
+    [[nodiscard]] VkSurfaceKHR GetSurface() const noexcept { return m_Surface; }
+
+    // Swapchain Management
+    void CreateSwapchain(uint32_t width, uint32_t height);
+    void DestroySwapchain();
+    void RecreateSwapchain(uint32_t width, uint32_t height);
+    [[nodiscard]] RHI::ISwapchain& GetSwapchain() noexcept { return *m_Swapchain; }
+    [[nodiscard]] const RHI::ISwapchain& GetSwapchain() const noexcept { return *m_Swapchain; }
+
     // Device Selection
-    bool PickPhysicalDevice(VkSurfaceKHR surface);
+    bool PickPhysicalDevice();
     uint32_t FindGraphicsQueueFamily() const noexcept { return m_GraphicsQueueFamily; }
     uint32_t FindPresentQueueFamily() const noexcept { return m_PresentQueueFamily; }
 
@@ -66,7 +85,10 @@ private:
     uint32_t m_PresentQueueFamily = UINT32_MAX;
     uint32_t m_ComputeQueueFamily = UINT32_MAX;
 
-    VkSurfaceKHR m_SelectedSurface = VK_NULL_HANDLE;
+    VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
+    std::unique_ptr<RHI::ISwapchain> m_Swapchain;
+
+    VkDebugUtilsMessengerEXT m_DebugMessenger = VK_NULL_HANDLE;
 };
 
 } // namespace Vanguard

@@ -5,13 +5,27 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Android NDK paths
 set(NDK_ROOT $ENV{ANDROID_NDK_HOME})
 
 # Source paths relative to this file (Platform/Android/app/src/main/cpp)
-set(REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..)
+set(REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../../..)
+set(PLATFORM_ANDROID_DIR ${REPO_ROOT}/Platform/Android)
+set(PLATFORM_DESKTOP_DIR ${REPO_ROOT}/Platform/Desktop)
 set(INCLUDE_DIR ${REPO_ROOT}/Include)
 set(SOURCE_DIR ${REPO_ROOT}/Source)
+
+# Include directories
+include_directories(
+    ${INCLUDE_DIR}
+    ${SOURCE_DIR}
+    ${PLATFORM_ANDROID_DIR}/Include
+    ${PLATFORM_DESKTOP_DIR}/Include
+    ${NDK_ROOT}/sysroot/usr/include
+    ${NDK_ROOT}/sources/android/native_app_glue
+)
+
+# Android native_app_glue (from NDK sources)
+set(NATIVE_APP_GLUE ${NDK_ROOT}/sources/android/native_app_glue/android_native_app_glue.c)
 
 # Shared core sources (platform-neutral)
 set(CORE_SOURCES
@@ -26,32 +40,34 @@ set(CORE_SOURCES
     ${SOURCE_DIR}/Editor/PropertyInspector.cpp
     ${SOURCE_DIR}/Editor/GizmoController.cpp
     ${SOURCE_DIR}/Editor/NodeEditorGraph.cpp
+    ${SOURCE_DIR}/Core/Engine.cpp
+    ${SOURCE_DIR}/Core/Window.cpp  # Keep for desktop fallback
+    ${SOURCE_DIR}/RHI/VulkanContext.cpp
+    ${SOURCE_DIR}/RHI/VulkanSwapchain.cpp
+    ${SOURCE_DIR}/RenderGraph/RenderGraph.cpp
+    ${SOURCE_DIR}/RenderGraph/BarrierCompiler.cpp
 )
 
-# Android-specific sources (empty for M0; will add in M1)
+# Android-specific sources
 set(ANDROID_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/android_main.cpp
+    ${PLATFORM_ANDROID_DIR}/Source/Platform/Android/WindowAndroid.cpp
+    ${NATIVE_APP_GLUE}
 )
 
-# Include directories
-include_directories(
-    ${INCLUDE_DIR}
-    ${SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${NDK_ROOT}/sysroot/usr/include
+# Desktop sources (for fallback/simulator)
+set(DESKTOP_SOURCES
+    ${PLATFORM_DESKTOP_DIR}/Source/Platform/Desktop/WindowSDL.cpp
 )
-
-# Android native_app_glue (from NDK sources)
-set(NATIVE_APP_GLUE ${NDK_ROOT}/sources/android/native_app_glue/android_native_app_glue.c)
 
 # Link libraries
-set(ANDROID_LIBS android log dl EGL GLESv3)
+set(ANDROID_LIBS android log dl EGL GLESv3 vulkan)
 
 # Vanguard native library
 add_library(vanguard SHARED
     ${CORE_SOURCES}
     ${ANDROID_SOURCES}
-    ${NATIVE_APP_GLUE}
+    ${DESKTOP_SOURCES}
 )
 
 target_link_libraries(vanguard PRIVATE ${ANDROID_LIBS})
