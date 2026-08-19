@@ -1,0 +1,11 @@
+CMake Error at CMakeLists.txt:51 (add_library):
+  Cannot find source file:
+
+    /home/user/MOBILEAPP-VANGUARD-ENGINE/Platform/Source/Reflection/ReflectionRegistry.cpp
+
+
+CMake Error at CMakeLists.txt:51 (add_library):
+  No SOURCES given to target: vanguard
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.

@@ -1,0 +1,3 @@
+/home/user/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/test/CMakeFiles/vanguard.dir
+/home/user/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/test/CMakeFiles/edit_cache.dir
+/home/user/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/test/CMakeFiles/rebuild_cache.dir
