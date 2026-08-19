@@ -43,7 +43,9 @@
 
 ## E. Toolchain & Dependencies
 - [x] Install C++ toolchain (cmake, g++/clang) via Nix — gcc-14.4.0, glm, vulkan-headers installed via `nix profile`
-- [~] Install engine third-party deps (Vulkan SDK, SDL3, glm, Jolt, imgui, Tracy) via Nix/vcpkg — glm + vulkan-headers real; SDL3/Jolt/imgui/Tracy/Filament not in nixpkgs default channel; syntax-checked all 20 TUs (0 errors / 0 warnings) against stubs in `/tmp/opencode/stubs`
+- [x] Implement Vulkan RHI Backend (`VulkanContext.cpp`, `VulkanSwapchain.cpp`) — no longer stubs
+- [x] Wire RenderGraph and Actor Reflection into Engine loop
+- [~] Install engine third-party deps (Vulkan SDK, SDL3, glm, Jolt, imgui, Tracy) via Nix/vcpkg
 - [ ] Verify a full `cmake --build` succeeds
 - [x] Verify web app `npm run build` succeeds — `next build` OK (routes `/`, `/_not-found`, `/api/gemini`); `npm run lint` clean
 

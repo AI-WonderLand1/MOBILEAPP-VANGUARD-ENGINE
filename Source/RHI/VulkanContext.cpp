@@ -1,5 +1,5 @@
-#include "Include/RHI/VulkanContext.h"
-#include "Source/RHI/VulkanSwapchain.h"
+#include "RHI/VulkanContext.h"
+#include "VulkanSwapchain.h"
 #include "Platform/IWindow.h"
 #include <stdexcept>
 #include <vector>
@@ -87,11 +87,24 @@ bool VulkanContext::PickPhysicalDevice() {
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(m_Instance, &deviceCount, devices.data());
 
-    // Simple pick: first device that supports 1.3
     for (const auto& device : devices) {
         VkPhysicalDeviceProperties props;
         vkGetPhysicalDeviceProperties(device, &props);
-        if (props.apiVersion >= VK_API_VERSION_1_3) {
+
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+        bool swapchainSupported = false;
+        for (const auto& ext : availableExtensions) {
+            if (strcmp(ext.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
+                swapchainSupported = true;
+                break;
+            }
+        }
+
+        if (props.apiVersion >= VK_API_VERSION_1_3 && swapchainSupported) {
             m_PhysicalDevice = device;
             break;
         }

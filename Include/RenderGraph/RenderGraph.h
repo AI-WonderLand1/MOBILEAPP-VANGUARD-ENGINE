@@ -79,7 +79,7 @@ public:
 
     // Frame Compilation & Execution
     void Compile();
-    void Execute(VkCommandBuffer cmdBuffer);
+    void Execute(VkCommandBuffer cmdBuffer, const std::vector<VkImage>& swapchainImages);
 
     // Resource Management
     RGTextureHandle CreateTransientTexture(const std::string& name, const RGTextureDesc& desc);

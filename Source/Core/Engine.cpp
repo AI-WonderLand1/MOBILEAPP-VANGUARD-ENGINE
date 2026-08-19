@@ -67,6 +67,8 @@ void Engine::Initialize(std::unique_ptr<Platform::IWindow> window) {
     auto extent = m_Window->GetExtent();
     m_VulkanContext->CreateSwapchain(extent.Width, extent.Height);
 
+    m_RenderGraph = std::make_unique<RenderGraph>(*m_VulkanContext);
+
     m_PhysicsSystem = std::make_unique<PhysicsSystem>();
     m_PhysicsSystem->Initialize();
 
@@ -163,51 +165,27 @@ void Engine::RenderFrame() {
             commandBuffer,
             image,
             VK_IMAGE_LAYOUT_UNDEFINED,
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-            VK_PIPELINE_STAGE_TRANSFER_BIT,
-            0,
-            VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK_IMAGE_ASPECT_COLOR_BIT
-        );
-    }
-
-    // Clear the image with a dark gray color
-    VkClearColorValue clearColor = {0.1f, 0.1f, 0.1f, 1.0f};
-    VkImageSubresourceRange subresourceRange{};
-    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    subresourceRange.baseMipLevel = 0;
-    subresourceRange.levelCount = 1;
-    subresourceRange.baseArrayLayer = 0;
-    subresourceRange.layerCount = 1;
-
-    vkCmdClearColorImage(
-        commandBuffer,
-        image,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        &clearColor,
-        1,
-        &subresourceRange
-    );
-
-    // Transition image from transfer destination to color attachment for ImGui
-    {
-        BarrierCompiler barrierCompiler;
-        barrierCompiler.EmitImageBarrier(
-            commandBuffer,
-            image,
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-            VK_ACCESS_TRANSFER_WRITE_BIT,
+            0,
             VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
             VK_IMAGE_ASPECT_COLOR_BIT
         );
     }
 
-    // Begin ImGui Render Pass
+    // Execute Render Graph
+    if (m_RenderGraph) {
+        // We'll pass the single current swapchain image as a list for now,
+        // or the whole swapchain if the graph knows how to index it.
+        std::vector<VkImage> currentImages = { image };
+        m_RenderGraph->Compile();
+        m_RenderGraph->Execute(commandBuffer, currentImages);
+    }
+
+    // Transition image from color attachment for ImGui
     if (m_EditorLayer) {
+        // ...
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = m_VulkanContext->GetRenderPass();

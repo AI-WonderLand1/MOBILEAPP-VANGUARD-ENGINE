@@ -65,11 +65,10 @@ void RenderGraph::InsertVulkanBarriers(VkCommandBuffer cmdBuffer, size_t passInd
     (void)passIndex;
 }
 
-void RenderGraph::Execute(VkCommandBuffer cmdBuffer) {
+void RenderGraph::Execute(VkCommandBuffer cmdBuffer, const std::vector<VkImage>& swapchainImages) {
     ZoneScopedN("RenderGraph::Execute");
 
-    std::vector<VkImage> placeholderImages; // images resolved by the RHI swapchain at frame time
-    RenderGraphContext context(m_RHI, placeholderImages, cmdBuffer);
+    RenderGraphContext context(m_RHI, swapchainImages, cmdBuffer);
 
     for (size_t passIndex = 0; passIndex < m_Passes.size(); ++passIndex) {
         ZoneScopedN("RenderGraph::ExecutePass");
