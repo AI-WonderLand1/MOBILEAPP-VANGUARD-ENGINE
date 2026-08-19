@@ -41,6 +41,7 @@ public:
             throw std::runtime_error("Failed to create SDL3 window: " + std::string(SDL_GetError()));
         }
 
+        m_IsInitialized = true;
         m_ShouldClose = false;
         return true;
     }
@@ -51,6 +52,7 @@ public:
             m_WindowHandle = nullptr;
         }
         SDL_Quit();
+        m_IsInitialized = false;
     }
 
     bool PollEvents() override {
@@ -154,10 +156,13 @@ public:
         }
     }
 
+    bool IsSurfaceReady() const noexcept override { return m_IsInitialized; }
+
 private:
     SDL_Window* m_WindowHandle = nullptr;
     WindowConfig m_Config;
     bool m_ShouldClose = false;
+    bool m_IsInitialized = false;
     EventCallback m_EventCallback;
 };
 

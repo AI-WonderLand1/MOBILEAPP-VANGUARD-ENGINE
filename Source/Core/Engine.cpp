@@ -7,7 +7,6 @@
 #include <chrono>
 #include <stdexcept>
 #include <tracy/Tracy.hpp>
-#include "RenderGraph/BarrierCompiler.h"
 
 namespace Vanguard {
 
@@ -17,6 +16,10 @@ Engine::Engine() = default;
 Engine::~Engine() = default;
 
 void Engine::Initialize() {
+    Initialize(nullptr);
+}
+
+void Engine::Initialize(std::unique_ptr<Platform::IWindow> window) {
     ZoneScopedN("Engine::Initialize");
 
     Platform::WindowConfig windowConfig;
@@ -25,9 +28,18 @@ void Engine::Initialize() {
     windowConfig.Height = 1080;
     windowConfig.bEnableVulkan = true;
 
-    m_Window = Platform::CreateWindow(windowConfig);
-    if (!m_Window || !m_Window->Initialize(windowConfig)) {
-        throw std::runtime_error("Failed to initialize platform window");
+    if (window) {
+        // Use the provided window
+        m_Window = std::move(window);
+        if (!m_Window->Initialize(windowConfig)) {
+            throw std::runtime_error("Failed to initialize provided window");
+        }
+    } else {
+        // Create window using platform factory
+        m_Window = Platform::CreateWindow(windowConfig);
+        if (!m_Window || !m_Window->Initialize(windowConfig)) {
+            throw std::runtime_error("Failed to initialize platform window");
+        }
     }
 
     // Set up input event callback

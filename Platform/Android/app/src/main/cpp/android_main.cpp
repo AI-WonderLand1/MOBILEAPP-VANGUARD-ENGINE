@@ -17,7 +17,7 @@ void android_main(android_app* app) {
     LOGI("Vanguard Android starting");
 
     try {
-        // Create window and engine
+        // Create window
         Platform::WindowConfig windowConfig;
         windowConfig.Title = "Vanguard Engine [Vulkan 1.3]";
         windowConfig.Width = 0;  // Will be set from window size
@@ -31,14 +31,14 @@ void android_main(android_app* app) {
         }
 
         Vanguard::Engine& engine = Vanguard::Engine::Get();
-        engine.Initialize();
+        engine.Initialize(std::move(window));
 
         LOGI("Vanguard Engine initialized successfully");
 
         auto last_time = std::chrono::steady_clock::now();
 
         // Main loop
-        while (!window->ShouldClose() && !app->destroyRequested) {
+        while (!engine.GetWindow()->ShouldClose() && !app->destroyRequested) {
             // Process Android events - this will call our window callbacks
             int events;
             android_poll_source* source;
@@ -49,7 +49,7 @@ void android_main(android_app* app) {
             }
 
             // If we have a valid surface, render a frame
-            if (window->IsSurfaceReady()) {
+            if (engine.GetWindow()->IsSurfaceReady()) {
                 auto now = std::chrono::steady_clock::now();
                 auto dt = std::chrono::duration<float>(now - last_time).count();
                 last_time = now;

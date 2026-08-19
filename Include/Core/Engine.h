@@ -18,6 +18,7 @@ public:
     static Engine& Get() { static Engine instance; return instance; }
 
     void Initialize();
+    void Initialize(std::unique_ptr<Platform::IWindow> window);
     void Run();
     void Shutdown();
 
@@ -35,7 +36,6 @@ private:
     void ProcessInput();
     void Tick(float deltaTime);
     void RenderFrame();
-    void OnPlatformEvent(const void* platformEvent);
 
     std::unique_ptr<Platform::IWindow> m_Window;
     std::unique_ptr<VulkanContext> m_VulkanContext;
