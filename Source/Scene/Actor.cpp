@@ -1,8 +1,18 @@
 #include "Scene/Actor.h"
+#include "Reflection/Macros.h"
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Vanguard {
+
+BEGIN_CLASS_REFLECTION(Actor, void)
+    REFLECT_PROPERTY(Actor, m_Name, "Name", "Identity", "Display name of the actor")
+    REFLECT_PROPERTY(Actor, m_Tag, "Tag", "Identity", "Searchable tag")
+    REFLECT_PROPERTY(Actor, m_Layer, "Layer", "Identity", "Rendering layer")
+    REFLECT_PROPERTY(Actor, m_Position, "Position", "Transform", "World space position")
+    REFLECT_PROPERTY(Actor, m_Rotation, "Rotation", "Transform", "Orientation quaternion")
+    REFLECT_PROPERTY(Actor, m_Scale, "Scale", "Transform", "Local scale")
+END_CLASS_REFLECTION()
 
 Actor::Actor(std::string name)
     : m_Name(std::move(name)) {

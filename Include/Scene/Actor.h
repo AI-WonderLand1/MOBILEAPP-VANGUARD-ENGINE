@@ -5,6 +5,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include "Reflection/Macros.h"
 
 namespace Vanguard {
 
@@ -31,6 +32,7 @@ protected:
 };
 
 class Actor : public std::enable_shared_from_this<Actor> {
+    REFLECT_CLASS(Actor, void)
 public:
     using Ptr = std::shared_ptr<Actor>;
 

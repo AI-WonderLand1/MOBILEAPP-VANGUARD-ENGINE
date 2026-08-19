@@ -4,6 +4,8 @@
 #include <vulkan/vulkan.h>
 #include <imgui.h>
 #include "Scene/Actor.h"
+#include "Editor/PropertyInspector.h"
+#include "Editor/ConsoleSystem.h"
 
 namespace Vanguard::Editor {
 
@@ -29,8 +31,12 @@ private:
     void RenderPropertyInspector();
     void RenderRenderGraphPanel();
     void RenderTracyProfilerOverlay();
+    void RenderConsolePanel();
 
     Actor* m_SelectedActor = nullptr;
+    std::unique_ptr<ConsoleSystem> m_Console;
+    PropertyInspector m_PropertyInspector;
+
     VkDescriptorSet m_ViewportTextureDescriptor = VK_NULL_HANDLE;
     glm::vec2 m_ViewportSize{1280.0f, 720.0f};
     bool m_bViewportFocused = false;

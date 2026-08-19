@@ -1,6 +1,7 @@
 #include "Editor/EditorLayer.h"
 #include "Core/Engine.h"
 #include "Scene/SceneGraph.h"
+#include "Scene/Components/StaticMeshComponent.h"
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <typeinfo>
@@ -58,6 +59,8 @@ void EditorLayer::Initialize(VkRenderPass imGuiRenderPass, uint32_t imageCount) 
     colors[ImGuiCol_Text] = ImVec4(0.86f, 0.88f, 0.92f, 1.00f);
     colors[ImGuiCol_TextDisabled] = ImVec4(0.42f, 0.45f, 0.50f, 1.00f);
     colors[ImGuiCol_Separator] = ImVec4(0.13f, 0.15f, 0.18f, 1.00f);
+
+    m_Console = std::make_unique<ConsoleSystem>();
 }
 
 void EditorLayer::Shutdown() {
@@ -79,6 +82,7 @@ void EditorLayer::RenderUI() {
     RenderPropertyInspector();
     RenderRenderGraphPanel();
     RenderTracyProfilerOverlay();
+    RenderConsolePanel();
 }
 
 // ---------------------------------------------------------------------------
@@ -201,21 +205,28 @@ void EditorLayer::RenderPropertyInspector() {
     ImGui::Text("Actor: %s", m_SelectedActor->GetName().c_str());
     ImGui::Separator();
 
-    const glm::vec3& position = m_SelectedActor->GetPosition();
-    if (ImGui::DragFloat3("Location", const_cast<float*>(glm::value_ptr(position)), 0.1f)) {
-        m_SelectedActor->SetPosition(position);
-    }
+    // Reflect Actor properties first
+    m_PropertyInspector.RenderComponent(*m_SelectedActor);
 
     ImGui::Separator();
     ImGui::TextDisabled("Components (%zu)", m_SelectedActor->GetComponents().size());
     for (const auto& component : m_SelectedActor->GetComponents()) {
-        if (ImGui::CollapsingHeader(typeid(*component).name(), ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::Indent();
-            bool bEnabled = component->IsEnabled();
-            if (ImGui::Checkbox("Enabled", &bEnabled)) {
-                component->SetEnabled(bEnabled);
+        // Try to get reflection meta if available (via dynamic cast to a known reflected type or generic check)
+        // For now, we know StaticMeshComponent is reflected.
+        if (auto* smc = dynamic_cast<StaticMeshComponent*>(component.get())) {
+            if (ImGui::CollapsingHeader("Static Mesh Component", ImGuiTreeNodeFlags_DefaultOpen)) {
+                m_PropertyInspector.RenderComponent(*smc);
             }
-            ImGui::Unindent();
+        } else {
+            // Fallback for non-reflected or unknown components
+            if (ImGui::CollapsingHeader(typeid(*component).name(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::Indent();
+                bool bEnabled = component->IsEnabled();
+                if (ImGui::Checkbox("Enabled", &bEnabled)) {
+                    component->SetEnabled(bEnabled);
+                }
+                ImGui::Unindent();
+            }
         }
     }
 
@@ -231,6 +242,44 @@ void EditorLayer::RenderRenderGraphPanel() {
 void EditorLayer::RenderTracyProfilerOverlay() {
     ImGui::Begin("Tracy Profiler");
     ImGui::TextDisabled("Connect Tracy Server on port 8086");
+    ImGui::End();
+}
+
+void EditorLayer::RenderConsolePanel() {
+    ImGui::Begin("Console / Output Log");
+
+    // Output scrolling region
+    const float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footerHeightToReserve), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+    for (const auto& entry : m_Console->GetLogs()) {
+        ImVec4 color = ImVec4(1, 1, 1, 1);
+        if (entry.LogType == ConsoleLogEntry::Type::Error) color = ImVec4(1, 0.4f, 0.4f, 1);
+        else if (entry.LogType == ConsoleLogEntry::Type::Warning) color = ImVec4(1, 0.8f, 0.4f, 1);
+        else if (entry.LogType == ConsoleLogEntry::Type::Command) color = ImVec4(0.4f, 1, 0.4f, 1);
+
+        ImGui::TextColored(color, "%s", entry.Message.c_str());
+    }
+
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        ImGui::SetScrollHereY(1.0f);
+
+    ImGui::EndChild();
+    ImGui::Separator();
+
+    // Command Input
+    static char inputBuffer[256] = "";
+    bool reclaimFocus = false;
+    ImGuiInputTextFlags inputFlags = ImGuiInputTextFlags_EnterReturnsTrue;
+    if (ImGui::InputText("Command", inputBuffer, IM_ARRAYSIZE(inputBuffer), inputFlags)) {
+        m_Console->Execute(inputBuffer);
+        strcpy(inputBuffer, "");
+        reclaimFocus = true;
+    }
+
+    ImGui::SetItemDefaultFocus();
+    if (reclaimFocus) ImGui::SetKeyboardFocusHere(-1);
+
     ImGui::End();
 }
 

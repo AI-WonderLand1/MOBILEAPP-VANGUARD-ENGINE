@@ -25,6 +25,7 @@ public:
     [[nodiscard]] Platform::IWindow& GetWindow() noexcept { return *m_Window; }
     [[nodiscard]] PhysicsSystem& GetPhysics() noexcept { return *m_PhysicsSystem; }
     [[nodiscard]] SceneGraph& GetSceneGraph() noexcept { return *m_SceneGraph; }
+    [[nodiscard]] RenderGraph& GetRenderGraph() noexcept { return *m_RenderGraph; }
     [[nodiscard]] Input::IInputSystem& GetInputSystem() noexcept { return *m_InputSystem; }
     [[nodiscard]] float GetDeltaTime() const noexcept { return m_DeltaTime; }
     [[nodiscard]] double GetTotalTime() const noexcept { return m_TotalTime; }
@@ -39,6 +40,7 @@ private:
 
     std::unique_ptr<Platform::IWindow> m_Window;
     std::unique_ptr<VulkanContext> m_VulkanContext;
+    std::unique_ptr<RenderGraph> m_RenderGraph;
     std::unique_ptr<PhysicsSystem> m_PhysicsSystem;
     std::unique_ptr<SceneGraph> m_SceneGraph;
     std::unique_ptr<Editor::EditorLayer> m_EditorLayer;

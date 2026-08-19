@@ -1,9 +1,12 @@
 #include "Core/Engine.h"
 #include "RHI/VulkanContext.h"
+#include "RenderGraph/RenderGraph.h"
 #include "Scene/SceneGraph.h"
 #include "Editor/EditorLayer.h"
 #include "Platform/Platform.h"
 #include "Input/InputSystem.h"
+#include "RenderGraph/BarrierCompiler.h"
+#include "RHI/ISwapchain.h"
 #include <chrono>
 #include <stdexcept>
 #include <tracy/Tracy.hpp>
@@ -53,10 +56,11 @@ void Engine::Initialize(std::unique_ptr<Platform::IWindow> window) {
     m_VulkanContext->Initialize(rhiConfig);
 
     // Create surface from window
-    if (auto* nativeHandle = m_Window->GetNativeHandle()) {
-        m_VulkanContext->CreateSurface(nativeHandle);
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
+    if (m_Window->CreateVulkanSurface(m_VulkanContext->GetInstance(), &surface) == VK_SUCCESS) {
+        m_VulkanContext->SetSurface(surface);
     } else {
-        throw std::runtime_error("Window native handle is null");
+        throw std::runtime_error("Failed to create Vulkan surface from window");
     }
 
     // Create swapchain
@@ -186,17 +190,51 @@ void Engine::RenderFrame() {
         &subresourceRange
     );
 
-    // Transition image from transfer destination to present
+    // Transition image from transfer destination to color attachment for ImGui
     {
         BarrierCompiler barrierCompiler;
         barrierCompiler.EmitImageBarrier(
             commandBuffer,
             image,
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
             VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
             VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+            VK_IMAGE_ASPECT_COLOR_BIT
+        );
+    }
+
+    // Begin ImGui Render Pass
+    if (m_EditorLayer) {
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = m_VulkanContext->GetRenderPass();
+        renderPassInfo.framebuffer = m_VulkanContext->GetSwapchain().GetImages()[imageIndex].Framebuffer;
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = m_VulkanContext->GetSwapchain().GetExtent();
+
+        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        m_EditorLayer->BeginFrame();
+        m_EditorLayer->RenderUI();
+        m_EditorLayer->EndFrame(commandBuffer);
+
+        vkCmdEndRenderPass(commandBuffer);
+    }
+
+    // Transition image from color attachment to present
+    {
+        BarrierCompiler barrierCompiler;
+        barrierCompiler.EmitImageBarrier(
+            commandBuffer,
+            image,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
             0,
             VK_IMAGE_ASPECT_COLOR_BIT
         );
@@ -204,12 +242,6 @@ void Engine::RenderFrame() {
 
     // End the command buffer
     m_VulkanContext->EndSingleTimeCommand(commandBuffer);
-
-    if (m_EditorLayer) {
-        m_EditorLayer->BeginFrame();
-        m_EditorLayer->RenderUI();
-        m_EditorLayer->EndFrame(VK_NULL_HANDLE);
-    }
 
     // Present the image
     m_VulkanContext->GetSwapchain().Present(

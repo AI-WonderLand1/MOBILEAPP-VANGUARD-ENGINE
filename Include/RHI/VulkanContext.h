@@ -37,6 +37,7 @@ public:
 
     // Surface Management
     void CreateSurface(void* nativeWindow);
+    void SetSurface(VkSurfaceKHR surface) { m_Surface = surface; }
     void DestroySurface();
     [[nodiscard]] VkSurfaceKHR GetSurface() const noexcept { return m_Surface; }
 
