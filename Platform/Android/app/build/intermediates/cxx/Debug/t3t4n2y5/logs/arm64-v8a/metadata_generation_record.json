@@ -1,0 +1,119 @@
+[
+  {
+    "level_": 0,
+    "message_": "Start JSON generation. Platform version: 26 min SDK version: arm64-v8a",
+    "file_": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt",
+    "tag_": "debug|arm64-v8a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "rebuilding JSON /home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/Debug/t3t4n2y5/arm64-v8a/android_gradle_build.json due to:",
+    "file_": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt",
+    "tag_": "debug|arm64-v8a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "- no fingerprint file, will remove stale configuration folder",
+    "file_": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt",
+    "tag_": "debug|arm64-v8a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "removing stale contents from \u0027/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/Debug/t3t4n2y5/arm64-v8a\u0027",
+    "file_": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt",
+    "tag_": "debug|arm64-v8a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "created folder \u0027/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/Debug/t3t4n2y5/arm64-v8a\u0027",
+    "file_": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt",
+    "tag_": "debug|arm64-v8a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "executing cmake /home/user/Android/Sdk/cmake/3.22.1/bin/cmake \\\n  -H/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp \\\n  -DCMAKE_SYSTEM_NAME\u003dAndroid \\\n  -DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON \\\n  -DCMAKE_SYSTEM_VERSION\u003d26 \\\n  -DANDROID_PLATFORM\u003dandroid-26 \\\n  -DANDROID_ABI\u003darm64-v8a \\\n  -DCMAKE_ANDROID_ARCH_ABI\u003darm64-v8a \\\n  -DANDROID_NDK\u003d/home/user/Android/Sdk/ndk/27.2.12479018 \\\n  -DCMAKE_ANDROID_NDK\u003d/home/user/Android/Sdk/ndk/27.2.12479018 \\\n  -DCMAKE_TOOLCHAIN_FILE\u003d/home/user/Android/Sdk/ndk/27.2.12479018/build/cmake/android.toolchain.cmake \\\n  -DCMAKE_MAKE_PROGRAM\u003d/home/user/Android/Sdk/cmake/3.22.1/bin/ninja \\\n  \"-DCMAKE_CXX_FLAGS\u003d-std\u003dc++23 -DANDROID -DVANGUARD_PLATFORM_ANDROID\u003d1\" \\\n  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/build/intermediates/cxx/Debug/t3t4n2y5/obj/arm64-v8a \\\n  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/build/intermediates/cxx/Debug/t3t4n2y5/obj/arm64-v8a \\\n  -DCMAKE_BUILD_TYPE\u003dDebug \\\n  -B/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/Debug/t3t4n2y5/arm64-v8a \\\n  -GNinja\n",
+    "file_": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt",
+    "tag_": "debug|arm64-v8a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "/home/user/Android/Sdk/cmake/3.22.1/bin/cmake \\\n  -H/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp \\\n  -DCMAKE_SYSTEM_NAME\u003dAndroid \\\n  -DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON \\\n  -DCMAKE_SYSTEM_VERSION\u003d26 \\\n  -DANDROID_PLATFORM\u003dandroid-26 \\\n  -DANDROID_ABI\u003darm64-v8a \\\n  -DCMAKE_ANDROID_ARCH_ABI\u003darm64-v8a \\\n  -DANDROID_NDK\u003d/home/user/Android/Sdk/ndk/27.2.12479018 \\\n  -DCMAKE_ANDROID_NDK\u003d/home/user/Android/Sdk/ndk/27.2.12479018 \\\n  -DCMAKE_TOOLCHAIN_FILE\u003d/home/user/Android/Sdk/ndk/27.2.12479018/build/cmake/android.toolchain.cmake \\\n  -DCMAKE_MAKE_PROGRAM\u003d/home/user/Android/Sdk/cmake/3.22.1/bin/ninja \\\n  \"-DCMAKE_CXX_FLAGS\u003d-std\u003dc++23 -DANDROID -DVANGUARD_PLATFORM_ANDROID\u003d1\" \\\n  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/build/intermediates/cxx/Debug/t3t4n2y5/obj/arm64-v8a \\\n  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/build/intermediates/cxx/Debug/t3t4n2y5/obj/arm64-v8a \\\n  -DCMAKE_BUILD_TYPE\u003dDebug \\\n  -B/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/Debug/t3t4n2y5/arm64-v8a \\\n  -GNinja\n",
+    "file_": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt",
+    "tag_": "debug|arm64-v8a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "Received process result: 1",
+    "file_": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt",
+    "tag_": "debug|arm64-v8a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "JSON generation completed with problem. Exception: com.android.ide.common.process.ProcessException: -- The C compiler identification is Clang 18.0.3\n-- The CXX compiler identification is Clang 18.0.3\n-- Detecting C compiler ABI info\n-- Detecting C compiler ABI info - done\n-- Check for working C compiler: /home/user/Android/Sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/linux-x86_64/bin/clang - skipped\n-- Detecting C compile features\n-- Detecting C compile features - done\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /home/user/Android/Sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done\n\nC++ build system [configure] failed while executing:\n    /home/user/Android/Sdk/cmake/3.22.1/bin/cmake \\\n      -H/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp \\\n      -DCMAKE_SYSTEM_NAME\u003dAndroid \\\n      -DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON \\\n      -DCMAKE_SYSTEM_VERSION\u003d26 \\\n      -DANDROID_PLATFORM\u003dandroid-26 \\\n      -DANDROID_ABI\u003darm64-v8a \\\n      -DCMAKE_ANDROID_ARCH_ABI\u003darm64-v8a \\\n      -DANDROID_NDK\u003d/home/user/Android/Sdk/ndk/27.2.12479018 \\\n      -DCMAKE_ANDROID_NDK\u003d/home/user/Android/Sdk/ndk/27.2.12479018 \\\n      -DCMAKE_TOOLCHAIN_FILE\u003d/home/user/Android/Sdk/ndk/27.2.12479018/build/cmake/android.toolchain.cmake \\\n      -DCMAKE_MAKE_PROGRAM\u003d/home/user/Android/Sdk/cmake/3.22.1/bin/ninja \\\n      \"-DCMAKE_CXX_FLAGS\u003d-std\u003dc++23 -DANDROID -DVANGUARD_PLATFORM_ANDROID\u003d1\" \\\n      -DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/build/intermediates/cxx/Debug/t3t4n2y5/obj/arm64-v8a \\\n      -DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/build/intermediates/cxx/Debug/t3t4n2y5/obj/arm64-v8a \\\n      -DCMAKE_BUILD_TYPE\u003dDebug \\\n      -B/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/Debug/t3t4n2y5/arm64-v8a \\\n      -GNinja\n  from /home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app\nCMake Error at CMakeLists.txt:36 (add_library):\n  Cannot find source file:\n\n    ../../../../../Source/Core/Engine.cpp\n\n\nCMake Error at CMakeLists.txt:36 (add_library):\n  No SOURCES given to target: vanguard\n\n\nCMake Generate step failed.  Build files cannot be regenerated correctly.",
+    "file_": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt",
+    "tag_": "debug|arm64-v8a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  }
+]

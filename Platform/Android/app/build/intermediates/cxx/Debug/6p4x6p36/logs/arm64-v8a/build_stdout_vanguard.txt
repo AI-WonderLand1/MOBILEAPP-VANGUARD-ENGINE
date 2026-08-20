@@ -1,0 +1,1 @@
+ninja: Entering directory `/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/Debug/6p4x6p36/arm64-v8a'

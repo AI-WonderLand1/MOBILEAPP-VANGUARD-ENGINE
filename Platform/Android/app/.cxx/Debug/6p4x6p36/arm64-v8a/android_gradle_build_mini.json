@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/user/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/Debug/6p4x6p36/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/user/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/.cxx/Debug/6p4x6p36/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "vanguard::@6890427a1f51a3e7e1df": {
+      "artifactName": "vanguard",
+      "abi": "arm64-v8a",
+      "output": "/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/build/intermediates/cxx/Debug/6p4x6p36/obj/arm64-v8a/libvanguard.so",
+      "runtimeFiles": []
+    }
+  }
+}
