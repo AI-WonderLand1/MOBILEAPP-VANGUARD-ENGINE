@@ -17,6 +17,25 @@ set(SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../Source")
 set(PLATFORM_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../Platform")
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../Include")
 
+# Fetch GLM (header-only math library)
+include(FetchContent)
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 0.9.9.8
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(glm)
+
+# Fetch Tracy (header-only profiler)
+FetchContent_Declare(
+    tracy
+    GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+    GIT_TAG v0.11.1
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(tracy)
+
 # Shared core sources (platform-neutral)
 set(CORE_SOURCES
     ${SOURCE_DIR}/Reflection/ReflectionRegistry.cpp
@@ -58,6 +77,8 @@ target_include_directories(vanguard PRIVATE
     ${PLATFORM_DIR}
     ${PLATFORM_DIR}/Desktop
     ${SOURCE_DIR}/Platform
+    ${glm_SOURCE_DIR}
+    ${tracy_SOURCE_DIR}
 )
 
 target_link_libraries(vanguard
@@ -73,4 +94,5 @@ target_compile_options(vanguard PRIVATE
     -DANDROID
     -DVANGUARD_PLATFORM_ANDROID=1
     -DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1
+    -DTRACY_ENABLE=1
 )
