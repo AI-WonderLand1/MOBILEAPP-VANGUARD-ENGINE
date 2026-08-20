@@ -1,1 +1,0 @@
-/home/user/StudioProjects/MOBILEAPP-VANGUARD-ENGINE/Platform/Android/app/src/main/cpp/CMakeLists.txt
