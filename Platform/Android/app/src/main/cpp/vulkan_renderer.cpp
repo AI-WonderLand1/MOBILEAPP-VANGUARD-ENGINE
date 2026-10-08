@@ -1,6 +1,7 @@
 #include <vulkan/vulkan.h>
 #include <android_native_app_glue.h>
 #include <android/log.h>
+#include <algorithm>
 #include <vector>
 #include <array>
 #include <cstdlib>
@@ -212,9 +213,8 @@ void createSwapchain() {
     
     VkExtent2D extent = caps.currentExtent;
     if (extent.width == UINT32_MAX) {
-        int width, height;
-        ANativeWindow_getWidth(g_app->window);
-        ANativeWindow_getHeight(g_app->window);
+        const uint32_t width = static_cast<uint32_t>(ANativeWindow_getWidth(g_app->window));
+        const uint32_t height = static_cast<uint32_t>(ANativeWindow_getHeight(g_app->window));
         extent.width = std::clamp((uint32_t)width, caps.minImageExtent.width, caps.maxImageExtent.width);
         extent.height = std::clamp((uint32_t)height, caps.minImageExtent.height, caps.maxImageExtent.height);
     }
