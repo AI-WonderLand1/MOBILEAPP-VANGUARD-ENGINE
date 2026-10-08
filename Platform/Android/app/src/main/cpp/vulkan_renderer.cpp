@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <cstdlib>
+#include <unistd.h>
 #include <cstring>
 
 #define LOG_TAG "VanguardGPU"
@@ -745,7 +746,7 @@ extern "C" void android_main(struct android_app* app) {
     while (!app->destroyRequested) {
         int events;
         android_poll_source* source;
-        while (ALooper_pollAll(g_state.initialized ? 0 : -1, nullptr, &events, (void**)&source) >= 0) {
+        while (ALooper_pollOnce(g_state.initialized ? 0 : -1, nullptr, &events, (void**)&source) >= 0) {
             if (source) source->process(app, source);
         }
         
