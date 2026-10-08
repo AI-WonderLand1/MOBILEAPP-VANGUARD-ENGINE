@@ -1,9 +1,11 @@
 #include <vulkan/vulkan.h>
 #include <android_native_app_glue.h>
 #include <android/log.h>
+#include <algorithm>
 #include <vector>
 #include <array>
 #include <cstdlib>
+#include <unistd.h>
 #include <cstring>
 
 #define LOG_TAG "VanguardGPU"
@@ -212,9 +214,8 @@ void createSwapchain() {
     
     VkExtent2D extent = caps.currentExtent;
     if (extent.width == UINT32_MAX) {
-        int width, height;
-        ANativeWindow_getWidth(g_app->window);
-        ANativeWindow_getHeight(g_app->window);
+        const uint32_t width = static_cast<uint32_t>(ANativeWindow_getWidth(g_app->window));
+        const uint32_t height = static_cast<uint32_t>(ANativeWindow_getHeight(g_app->window));
         extent.width = std::clamp((uint32_t)width, caps.minImageExtent.width, caps.maxImageExtent.width);
         extent.height = std::clamp((uint32_t)height, caps.minImageExtent.height, caps.maxImageExtent.height);
     }
@@ -745,7 +746,7 @@ extern "C" void android_main(struct android_app* app) {
     while (!app->destroyRequested) {
         int events;
         android_poll_source* source;
-        while (ALooper_pollAll(g_state.initialized ? 0 : -1, nullptr, &events, (void**)&source) >= 0) {
+        while (ALooper_pollOnce(g_state.initialized ? 0 : -1, nullptr, &events, (void**)&source) >= 0) {
             if (source) source->process(app, source);
         }
         

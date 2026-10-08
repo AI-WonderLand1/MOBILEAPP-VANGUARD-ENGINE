@@ -1,0 +1,33 @@
+name: Validate web studio dependencies
+
+on:
+  pull_request:
+    branches: [Master]
+  push:
+    branches: [Master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Clean install locked dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Show npm audit findings (not a release gate until triaged)
+        run: npm audit --audit-level=high
+        continue-on-error: true
